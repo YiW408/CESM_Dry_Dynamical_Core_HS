@@ -7,16 +7,6 @@ module runtime_opts
 !
 !-----------------------------------------------------------------------
 
-!-----------------------------------------------------------------------
-! PKSTRAT
-! Modified to read in namelist parameters for Polvani and Kushner stratosphere
-! Isla Simpson 8th June 2017
-!
-! Updated for CESM2 release, Isla Simpson, 30th May 2018
-! Modified for CESM2.2.3 alpha 17b release, Yi Wang, Aug 2024
-! END PKSTRAT
-!-----------------------------------------------------------------------
-
 use shr_kind_mod,    only: r8=>shr_kind_r8
 
 implicit none
@@ -114,10 +104,6 @@ subroutine read_namelist(nlfilename, single_column, scmlat, scmlon)
    use cam_budget,          only: cam_budget_readnl
    use phys_grid_ctem,      only: phys_grid_ctem_readnl
    use mo_lightning,        only: lightning_readnl
-
-   ! PKSTRAT
-   use held_suarez_cam,     only: pkstrat_readnl
-   ! END-PKSTRAT
 
    !---------------------------Arguments-----------------------------------
 
@@ -223,10 +209,6 @@ subroutine read_namelist(nlfilename, single_column, scmlat, scmlon)
    call hemco_readnl(nlfilename)
    call cam_budget_readnl(nlfilename)
    call phys_grid_ctem_readnl(nlfilename)
-
-   ! PKSTRAT
-   call pkstrat_readnl(nlfilename)
-   ! END-PKSTRAT
 
 end subroutine read_namelist
 
