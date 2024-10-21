@@ -16,6 +16,9 @@
 # <A2> Setting parallel computing configuration (multi-processing multi-threading)   | $CASEROOT                                                             | Step 1.5 |
 # <A3> Namelist modification - specify output format.                                | $CASEROOT/user_nl_cam                                                 | Step 2.5 |
 # <A4> Namelist modification - specify output variables.                             | $CASEROOT/user_nl_cam                                                 | Step 2.5 |
+# <PK1> [PK02] Namelist modification -                                               | $CASEROOT/user_nl_cam                                                 | Step 2.5 |
+#              specify namelist parameters to control the use of the                 |                                                                       |          |
+#              PK02 stratosphere                                                     |                                                                       |          |
 # ===================================================================================================================================================================================================
 
 
@@ -143,6 +146,25 @@ cat <<END_OF_INSERT >> user_nl_cam
 ! 'fincl<x>' controls the fields in h<x+1>
 fincl1 = 'U', 'V', 'OMEGA', 'T', 'Z3', 'VZ', 'VT', 'VU', 'OMEGAV', 'OMEGAT', 'OMEGAU', 'PS', 'PSL', 'T010', 'U010', 'QRS', 'DTCORE'
 fincl2 = 'U', 'V', 'OMEGA', 'T', 'Z3', 'VZ', 'VT', 'VU', 'OMEGAV', 'OMEGAT', 'OMEGAU', 'PS', 'PSL', 'T010', 'U010', 'QRS', 'DTCORE'
+
+END_OF_INSERT
+
+
+## Adding Namelist: specify namelist parameters to control the use of the PK02 stratosphere <PK1>
+#  namelist -
+#    pkstrat: set to true to use the Polvani and Kushner stratosphere (Polvani and Kushner, 2002)
+#     vgamma: The gamma value (K/Km) in the Polvani and Kushner stratosphere (Polvani and Kushner, 2002)
+#             that represents the lapse rate in the polar stratosphere.  Default=2.
+
+cat <<END_OF_INSERT >> user_nl_cam
+
+! PKSTRAT
+! Add namelist parameters to control the use of the PK02 relaxation temperature profile
+&pkstrat_nl
+  pkstrat=.True.
+  vgamma=2.
+/
+! END-PKSTRAT
 
 END_OF_INSERT
 
