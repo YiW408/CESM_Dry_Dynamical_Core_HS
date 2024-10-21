@@ -1,5 +1,5 @@
 # This is a testing bash shell script for running CESM
-# component set: FHS94, T85L60 [Default]
+# component set: FHS94, T85L60 [PK02][MODEL_TOP=2.2e-2 hPa][nlev=60]
 # "*" for basic steps
 # testing case name: HS94_test
 
@@ -26,6 +26,8 @@
 #                                                                                    | $DIN_LOC_ROOT/cam/inic/dabiic/ncdata/HS1994.128x256.L60.nc            | Step 2.5 |
 # <PK5> [PK02] Namelist modification - revalue 'ncdata' to the location of           | $CASEROOT/user_nl_cam                                                 | Step 2.5 |
 #              expected (new) initial condition file                                 |                                                                       |          |
+# <PK6> [PK02] Namelist modification -                                               | $CASEROOT/user_nl_cam                                                 | Step 2.5 |
+#              revalue hyperparameters for modified resolution configuration         |                                                                       |          |
 # =======================================================================================================================================================================
 
 
@@ -214,6 +216,19 @@ cat <<END_OF_INSERT >> user_nl_cam
 ! ncdata='myfile'   ! 'myfile' for location of expected initial condition
 ! for T85L60
 ncdata='/work/ur12229009/cesm_inputdata/atm/cam/inic/dabiic/ncdata/HS1994.128x256.L60.nc'
+
+END_OF_INSERT
+
+
+## Adding Namelist: revalue hyperparameters for modified resolution configuration <PK6>
+cat <<END_OF_INSERT >> user_nl_cam
+
+! hyperparameters for modified resolution configuration
+! usually automatically set up as case is created,
+! and is consistent to the horizontal resolution assigned when creating the case
+! for T85
+eul_hdif_order = 4
+eul_hdif_coef = 7.14D14
 
 END_OF_INSERT
 
