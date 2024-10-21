@@ -201,8 +201,10 @@ nlev=60             # numbers of vertical layers
 sed -i "66c\nlev = $nlev" $DATADIR/atm/cam/inic/dabiic/makeic.ncl
 
 # execute makeic.ncl - generate input data
+cd $DATADIR/atm/cam/inic/dabiic/
 module load coda/tools/ncl
 ncl $DATADIR/atm/cam/inic/dabiic/makeic.ncl
+cd $CASEDIR
 
 # reassign number of levels to fit the actual vertical resolution
 # (if the resolution is different from the default of $COMPSET)
@@ -210,6 +212,7 @@ ncl $DATADIR/atm/cam/inic/dabiic/makeic.ncl
 
 
 ## Adding Namelist: revalue 'ncdata' to the location of expected (new) initial condition file <PK5>
+# remember to check ncdata path
 cat <<END_OF_INSERT >> user_nl_cam
 
 ! input data (I.C.) for modified vertical resolution configuration
@@ -232,6 +235,9 @@ eul_hdif_coef = 7.14D14
 
 END_OF_INSERT
 
+
+## generate the namelists
+./preview_namelists
 
 ########################################
 # * Step 3 - build (compile) the model # ===============================================================================
