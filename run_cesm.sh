@@ -185,7 +185,7 @@ cp $CESMDIR/code/PK02_configuration/pkstrat_CESM2_2_3/SourceMods/src.cam/runtime
 
 
 ## Adding Namelist definitions for PK02 source code modifications <PK3>
-cp $CESMDIR/code/PK02_configuration/pkstrat_CESM2_2_3/namelist_definitions/namelist_definition.xml $SRCDIR/components/cam/bld/namelist_files/namelist_definition.xml
+cp $CESMDIR/code/PK02_configuration/pkstrat_CESM2_2_3/SourceMods/namelist_definitions/namelist_definition.xml $SRCDIR/components/cam/bld/namelist_files/namelist_definition.xml
 # (since the modification is made right in $SRCROOT, it is only needed for the first-time running)
 
 
