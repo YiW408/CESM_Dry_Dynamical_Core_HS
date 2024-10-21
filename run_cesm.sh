@@ -20,6 +20,7 @@
 #              specify namelist parameters to control the use of the                 |                                                                       |          |
 #              PK02 stratosphere                                                     |                                                                       |          |
 # <PK2> [PK02] Source Code Modification for PK02 Stratosphere configuration          | $CASEROOT/SourceMods/src.cam                                          | Step 2.5 |
+# <PK3> [PK02] Adding Namelist definitions for PK02 source code modifications        | $SRCROOT/components/cam/bld/namelist_files/namelist_definition.xml    | Step 2.5 |
 # ===================================================================================================================================================================================================
 
 
@@ -174,6 +175,11 @@ END_OF_INSERT
 cp $CESMDIR/code/PK02_configuration/pkstrat_CESM2_2_3/SourceMods/src.cam/held_suarez_1994.F90 $CASEDIR/SourceMods/src.cam/held_suarez_1994.F90
 cp $CESMDIR/code/PK02_configuration/pkstrat_CESM2_2_3/SourceMods/src.cam/held_suarez_cam.F90 $CASEDIR/SourceMods/src.cam/held_suarez_cam.F90
 cp $CESMDIR/code/PK02_configuration/pkstrat_CESM2_2_3/SourceMods/src.cam/runtime_opts.F90 $CASEDIR/SourceMods/src.cam/runtime_opts.F90
+
+
+## Adding Namelist definitions for PK02 source code modifications <PK3>
+cp $CESMDIR/code/PK02_configuration/pkstrat_CESM2_2_3/namelist_definitions/namelist_definition.xml $SRCDIR/components/cam/bld/namelist_files/namelist_definition.xml
+# (since the modification is made right in $SRCROOT, it is only needed for the first-time running)
 
 
 ## generate the namelists
