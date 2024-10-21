@@ -43,6 +43,10 @@ begin
 ; Modified for CESM 2.2.3 release by Yi Wang, Aug 2024
 ; 1. docs: add more information in documentation
 ; 2. style: reformat script
+; 3. feature: add user's options for unevenly-spaced sigma levels grid points
+;    (by PK02 definitions)
+;    set evsig = True ---> evenly spaced in level interfaces
+;        evsig = False ---> unevenly spaced in level interfaces
 ;=======================================================================================================================
 
 
@@ -59,6 +63,12 @@ icase = 1     ; for Held-Suarez (isothermal, zero wind)
 ; typical values: 30, 40, 46 (Yaga's 46 Level configuration), 60, 80, 120
 ; default for L40 is the Polvani and Kushner configuration (not evenly-spaced sigma levels)
 nlev = 60
+
+
+; Vertical Level Options - spacing configuration (Yi Wang, Aug 2024)
+; evsig = True ---> evenly spaced in level interfaces
+; evsig = False ---> unevenly spaced in level interfaces (available nlev = 40, 60, 80)
+evsig = False
 
 
 ; grid definition options
