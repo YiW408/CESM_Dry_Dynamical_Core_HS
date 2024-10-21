@@ -3,6 +3,10 @@
 # "*" for basic steps
 # testing case name: HS94_test
 
+# [PK02] for Stratosphere configuration in Polvani & Kushner (2002)
+# https://agupubs.onlinelibrary.wiley.com/doi/10.1029/2001GL014284
+# https://www.cesm.ucar.edu/models/simple/change-trefana
+
 ######################
 # alteration tracing # ==================================================================================================================================================
 ######################                                                               |                              location                                 |          |
@@ -10,6 +14,8 @@
 # =======================================================================================================================================================================
 # <A1> Revalue environmental variables in XML files                                  | $CASEROOT                                                             | Step 1.5 |
 # <A2> Setting parallel computing configuration (multi-processing multi-threading)   | $CASEROOT                                                             | Step 1.5 |
+# <A3> Namelist modification - specify output format.                                | $CASEROOT/user_nl_cam                                                 | Step 2.5 |
+# <A4> Namelist modification - specify output variables.                             | $CASEROOT/user_nl_cam                                                 | Step 2.5 |
 # ===================================================================================================================================================================================================
 
 
@@ -107,6 +113,42 @@ cd $CASEDIR
 # setup your case
 ./case.setup
 
+
+#################################
+# Step 2.5 - More Modifications # ======================================================================================
+#################################
+# 1. Modify namelist to specify model's controls. ($CASEROOT/user_nl_*)
+# 2. Modify source code if needed. (under $CASEROOT/SourceMods/)
+# 3. Modify namelist definitions if needed. ($SRCROOT/components/cam/bld/namelist_files/namelist_definition.xml)
+# 4. Select/Regenerate appropriate input data that fit the modified model configuration. ($DIN_LOC_ROOT)
+#    [remember to reset the location (path) to which 'ncdata' points (i.e. reset 'myfilepath' in 'user_nl_cam' file),
+#    so that the model inputs the correct initial condition file.]
+# ======================================================================================================================
+
+## Adding Namelist: specify output frequency and numbers of output samples per file <A3>
+cat <<END_OF_INSERT >> user_nl_cam
+
+! specify output frequency and numbers of output samples per file
+! assign values in order of h0, h1, and h2, ... files
+nhtfrq = 0, -24
+mfilt = 1, 365
+
+END_OF_INSERT
+
+
+## Adding Namelist: adding output variables <A4>
+cat <<END_OF_INSERT >> user_nl_cam
+
+! adding output variables
+! 'fincl<x>' controls the fields in h<x+1>
+fincl1 = 'U', 'V', 'OMEGA', 'T', 'Z3', 'VZ', 'VT', 'VU', 'OMEGAV', 'OMEGAT', 'OMEGAU', 'PS', 'PSL', 'T010', 'U010', 'QRS', 'DTCORE'
+fincl2 = 'U', 'V', 'OMEGA', 'T', 'Z3', 'VZ', 'VT', 'VU', 'OMEGAV', 'OMEGAT', 'OMEGAU', 'PS', 'PSL', 'T010', 'U010', 'QRS', 'DTCORE'
+
+END_OF_INSERT
+
+
+## generate the namelists
+./preview_namelists
 
 ########################################
 # * Step 3 - build (compile) the model # ===============================================================================
