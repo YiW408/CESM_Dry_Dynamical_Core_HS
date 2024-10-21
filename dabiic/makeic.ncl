@@ -47,6 +47,7 @@ begin
 ;    (by PK02 definitions)
 ;    set evsig = True ---> evenly spaced in level interfaces
 ;        evsig = False ---> unevenly spaced in level interfaces
+; 4. Add more available options for unevenly-spaced configuration (available nlev: 40, 60, 80) (by PK02 definitions)
 ;=======================================================================================================================
 
 
