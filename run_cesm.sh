@@ -21,7 +21,10 @@
 #              PK02 stratosphere                                                     |                                                                       |          |
 # <PK2> [PK02] Source Code Modification for PK02 Stratosphere configuration          | $CASEROOT/SourceMods/src.cam                                          | Step 2.5 |
 # <PK3> [PK02] Adding Namelist definitions for PK02 source code modifications        | $SRCROOT/components/cam/bld/namelist_files/namelist_definition.xml    | Step 2.5 |
-# ===================================================================================================================================================================================================
+# <PK4> [PK02] Regenerate appropriate input data that fit the PK02 configuration.    | $DIN_LOC_ROOT/cam/inic/dabiic/makeic.ncl                              | Step 2.5 |
+#              (using uneven grid spacing in vertical direction)                     | $DIN_LOC_ROOT/cam/inic/dabiic/levels.ncl                              | Step 2.5 |
+#                                                                                    | $DIN_LOC_ROOT/cam/inic/dabiic/ncdata/HS1994.128x256.L60.nc            | Step 2.5 |
+# =======================================================================================================================================================================
 
 
 ###################################
@@ -182,8 +185,25 @@ cp $CESMDIR/code/PK02_configuration/pkstrat_CESM2_2_3/namelist_definitions/namel
 # (since the modification is made right in $SRCROOT, it is only needed for the first-time running)
 
 
-## generate the namelists
-./preview_namelists
+## Regenerate appropriate input data that fit the PK02 configuration. <PK4>
+
+cp $CESMDIR/code/PK02_configuration/dabiic/* $DATADIR/atm/cam/inic/dabiic/
+# (since the makeic.ncl and its related files is put in $DIN_LOC_ROOT, and will remain existed globally,
+# this command is only needed for the first-time running)
+
+nlev=60             # numbers of vertical layers
+
+# replace context in makeic.ncl
+sed -i "66c\nlev = $nlev" $DATADIR/atm/cam/inic/dabiic/makeic.ncl
+
+# execute makeic.ncl - generate input data
+module load coda/tools/ncl
+ncl $DATADIR/atm/cam/inic/dabiic/makeic.ncl
+
+# reassign number of levels to fit the actual vertical resolution
+# (if the resolution is different from the default of $COMPSET)
+./xmlchange --file env_build.xml --id CAM_CONFIG_OPTS --val "--phys held_suarez --nlev=$nlev"
+
 
 ########################################
 # * Step 3 - build (compile) the model # ===============================================================================
