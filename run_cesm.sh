@@ -19,6 +19,7 @@
 # <PK1> [PK02] Namelist modification -                                               | $CASEROOT/user_nl_cam                                                 | Step 2.5 |
 #              specify namelist parameters to control the use of the                 |                                                                       |          |
 #              PK02 stratosphere                                                     |                                                                       |          |
+# <PK2> [PK02] Source Code Modification for PK02 Stratosphere configuration          | $CASEROOT/SourceMods/src.cam                                          | Step 2.5 |
 # ===================================================================================================================================================================================================
 
 
@@ -167,6 +168,12 @@ cat <<END_OF_INSERT >> user_nl_cam
 ! END-PKSTRAT
 
 END_OF_INSERT
+
+
+## Source Code Modification for PK02 Stratosphere configuration <PK2>
+cp $CESMDIR/code/PK02_configuration/pkstrat_CESM2_2_3/SourceMods/src.cam/held_suarez_1994.F90 $CASEDIR/SourceMods/src.cam/held_suarez_1994.F90
+cp $CESMDIR/code/PK02_configuration/pkstrat_CESM2_2_3/SourceMods/src.cam/held_suarez_cam.F90 $CASEDIR/SourceMods/src.cam/held_suarez_cam.F90
+cp $CESMDIR/code/PK02_configuration/pkstrat_CESM2_2_3/SourceMods/src.cam/runtime_opts.F90 $CASEDIR/SourceMods/src.cam/runtime_opts.F90
 
 
 ## generate the namelists
