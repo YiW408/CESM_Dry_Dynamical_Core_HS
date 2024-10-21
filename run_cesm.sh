@@ -24,6 +24,8 @@
 # <PK4> [PK02] Regenerate appropriate input data that fit the PK02 configuration.    | $DIN_LOC_ROOT/cam/inic/dabiic/makeic.ncl                              | Step 2.5 |
 #              (using uneven grid spacing in vertical direction)                     | $DIN_LOC_ROOT/cam/inic/dabiic/levels.ncl                              | Step 2.5 |
 #                                                                                    | $DIN_LOC_ROOT/cam/inic/dabiic/ncdata/HS1994.128x256.L60.nc            | Step 2.5 |
+# <PK5> [PK02] Namelist modification - revalue 'ncdata' to the location of           | $CASEROOT/user_nl_cam                                                 | Step 2.5 |
+#              expected (new) initial condition file                                 |                                                                       |          |
 # =======================================================================================================================================================================
 
 
@@ -203,6 +205,17 @@ ncl $DATADIR/atm/cam/inic/dabiic/makeic.ncl
 # reassign number of levels to fit the actual vertical resolution
 # (if the resolution is different from the default of $COMPSET)
 ./xmlchange --file env_build.xml --id CAM_CONFIG_OPTS --val "--phys held_suarez --nlev=$nlev"
+
+
+## Adding Namelist: revalue 'ncdata' to the location of expected (new) initial condition file <PK5>
+cat <<END_OF_INSERT >> user_nl_cam
+
+! input data (I.C.) for modified vertical resolution configuration
+! ncdata='myfile'   ! 'myfile' for location of expected initial condition
+! for T85L60
+ncdata='/work/ur12229009/cesm_inputdata/atm/cam/inic/dabiic/ncdata/HS1994.128x256.L60.nc'
+
+END_OF_INSERT
 
 
 ########################################
