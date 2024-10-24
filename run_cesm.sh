@@ -18,7 +18,7 @@
 # <A4> Namelist modification - specify output variables.                             | $CASEROOT/user_nl_cam                                                 | Step 2.5 |
 # <PK1> [PK02] Namelist modification -                                               | $CASEROOT/user_nl_cam                                                 | Step 2.5 |
 #              specify namelist parameters to control the use of the                 |                                                                       |          |
-#              PK02 stratosphere                                                     |                                                                       |          |
+#              PK02 relaxation temperature profile and upper level sponge layer      |                                                                       |          |
 # <PK2> [PK02] Source Code Modification for PK02 Stratosphere configuration          | $CASEROOT/SourceMods/src.cam                                          | Step 2.5 |
 # <PK3> [PK02] Adding Namelist definitions for PK02 source code modifications        | $SRCROOT/components/cam/bld/namelist_files/namelist_definition.xml    | Step 2.5 |
 # <PK4> [PK02] Regenerate appropriate input data that fit the PK02 configuration.    | $DIN_LOC_ROOT/cam/inic/dabiic/makeic.ncl                              | Step 2.5 |
@@ -36,7 +36,7 @@
 ###################################
 export CESMDIR=/home/ur12229009/cesm                       # root directory for all CESM releases/tags
 export SRCDIR=$CESMDIR/code/cesm2_3_alpha17b               # root directory for CESM code used ($SRCROOT in CESM world)
-export DATADIR=/work/ur12229009/cesm_inputdata             # root directory for CESM input data
+export DATADIR=/work/ur12229009/cesm_inputdata             # root directory for CESM input data ($DIN_LOC_ROOT in CESM world)
 
 export CASENAME=HS94_test                                  # Case Name
 export CASEDIR=$CESMDIR/cases/$CASENAME                    # Case Directory ($CASEROOT in CESM world)
@@ -159,19 +159,41 @@ fincl2 = 'U', 'V', 'OMEGA', 'T', 'Z3', 'VZ', 'VT', 'VU', 'OMEGAV', 'OMEGAT', 'OM
 END_OF_INSERT
 
 
-## Adding Namelist: specify namelist parameters to control the use of the PK02 stratosphere <PK1>
+## Adding Namelist: specify namelist parameters to control the use of the PK02 relaxation temperature profile
+#                   and upper level sponge layer <PK1>
 #  namelist -
-#    pkstrat: set to true to use the Polvani and Kushner stratosphere (Polvani and Kushner, 2002)
+#    pkstrat: set to True to use the Polvani and Kushner stratosphere (Polvani and Kushner, 2002)
 #     vgamma: The gamma value (K/Km) in the Polvani and Kushner stratosphere (Polvani and Kushner, 2002)
 #             that represents the lapse rate in the polar stratosphere.  Default=2.
+#       noPV: set to True for NO POLAR VORTEX case. Default=.False. (vgamma, lat0, dellat is then inactive)
+#       pret: Location of sponge layer, i.e., the p_sp value (Pa) in the Polvani and Kushner stratosphere
+#             (Polvani and Kushner, 2002) that control the lower limit (Pa) for upper level damping (sponge layer).
+#             Default = 50 Pa.
+#       lat0: The phi_0 value in the Polvani and Kushner relaxation temperature field (Polvani and Kushner, 2002)
+#             that control the weight function used to confine the cooling over the winter pole. Default = -50.
+#     dellat: The delta_phi value in the Polvani and Kushner relaxation temperature field (Polvani and Kushner, 2002)
+#             that control the weight function used to confine the cooling over the winter pole. Default = 10.
+#       dely: The delta_y value (K) in the Polvani and Kushner relaxation temperature field (Polvani and Kushner, 2002)
+#             that control the meridional temperature gradient in the troposphere. Default = 60 K.
+#        eps: The epsilon value (K) in the Polvani and Kushner relaxation temperature field (Polvani and Kushner, 2002)
+#             that provides the asymmetry between the winter and summer hemisphere. Default = -10 K.
+#       delz: The delta_z value (K) in the Polvani and Kushner relaxation temperature field (Polvani and Kushner, 2002)
+#             that control the vertical temperature gradient in the troposphere. Default = 10 K.
 
 cat <<END_OF_INSERT >> user_nl_cam
 
 ! PKSTRAT
-! Add namelist parameters to control the use of the PK02 relaxation temperature profile
+! Add namelist parameters to control the use of the PK02 relaxation temperature profile and upper level sponge layer
 &pkstrat_nl
   pkstrat=.True.
-  vgamma=2.
+  vgamma = 2.
+  noPV = .False.
+  pret = 50
+  lat0 = 50
+  dellat = 10
+  dely = 60
+  eps = 10
+  delz = 10
 /
 ! END-PKSTRAT
 
@@ -179,22 +201,28 @@ END_OF_INSERT
 
 
 ## Source Code Modification for PK02 Stratosphere configuration <PK2>
-cp $CESMDIR/code/PK02_configuration/pkstrat_CESM2_2_3/SourceMods/src.cam/held_suarez_1994.F90 $CASEDIR/SourceMods/src.cam/held_suarez_1994.F90
-cp $CESMDIR/code/PK02_configuration/pkstrat_CESM2_2_3/SourceMods/src.cam/held_suarez_cam.F90 $CASEDIR/SourceMods/src.cam/held_suarez_cam.F90
-cp $CESMDIR/code/PK02_configuration/pkstrat_CESM2_2_3/SourceMods/src.cam/runtime_opts.F90 $CASEDIR/SourceMods/src.cam/runtime_opts.F90
+# copy modified source code to $CASEROOT/SourceMods/src.cam/
+# replace "$CESMDIR/code/PK02_configuration/" with the path where you put the PK02 code
+cp $CESMDIR/code/PK02_configuration/pkstrat/SourceMods/src.cam/held_suarez_1994.F90 $CASEDIR/SourceMods/src.cam/held_suarez_1994.F90
+cp $CESMDIR/code/PK02_configuration/pkstrat/SourceMods/src.cam/held_suarez_cam.F90 $CASEDIR/SourceMods/src.cam/held_suarez_cam.F90
+cp $CESMDIR/code/PK02_configuration/pkstrat/SourceMods/src.cam/runtime_opts.F90 $CASEDIR/SourceMods/src.cam/runtime_opts.F90
 
 
 ## Adding Namelist definitions for PK02 source code modifications <PK3>
-cp $CESMDIR/code/PK02_configuration/pkstrat_CESM2_2_3/SourceMods/namelist_definitions/namelist_definition.xml $SRCDIR/components/cam/bld/namelist_files/namelist_definition.xml
+# copy modified namelist definition file to $SRCROOT/components/cam/bld/namelist_files/namelist_definition.xml
+# replace "$CESMDIR/code/PK02_configuration/" with the path where you put the PK02 code
+cp $CESMDIR/code/PK02_configuration/pkstrat/SourceMods/namelist_definitions/namelist_definition.xml $SRCDIR/components/cam/bld/namelist_files/namelist_definition.xml
 # (since the modification is made right in $SRCROOT, it is only needed for the first-time running)
 
 
 ## Regenerate appropriate input data that fit the PK02 configuration. <PK4>
-
+# copy NCL scripts that generate initial condition file to $DIN_LOC_ROOT/atm/cam/inic/dabiic/
+# replace "$CESMDIR/code/PK02_configuration/" with the path where you put the PK02 code
 cp $CESMDIR/code/PK02_configuration/dabiic/* $DATADIR/atm/cam/inic/dabiic/
 # (since the makeic.ncl and its related files is put in $DIN_LOC_ROOT, and will remain existed globally,
 # this command is only needed for the first-time running)
 
+# assign numbers of vertical layers for the simulation
 nlev=60             # numbers of vertical layers
 
 # replace context in makeic.ncl
@@ -207,7 +235,7 @@ ncl $DATADIR/atm/cam/inic/dabiic/makeic.ncl
 cd $CASEDIR
 
 # reassign number of levels to fit the actual vertical resolution
-# (if the resolution is different from the default of $COMPSET)
+# (if the resolution is different from the default of the component set)
 ./xmlchange --file env_build.xml --id CAM_CONFIG_OPTS --val "--phys held_suarez --nlev=$nlev"
 
 
