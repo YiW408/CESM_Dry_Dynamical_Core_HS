@@ -18,7 +18,7 @@
 # <A4> Namelist modification - specify output variables.                             | $CASEROOT/user_nl_cam                                                 | Step 2.5 |
 # <PK1> [PK02] Namelist modification -                                               | $CASEROOT/user_nl_cam                                                 | Step 2.5 |
 #              specify namelist parameters to control the use of the                 |                                                                       |          |
-#              PK02 stratosphere                                                     |                                                                       |          |
+#              PK02 relaxation temperature profile and upper level sponge layer      |                                                                       |          |
 # <PK2> [PK02] Source Code Modification for PK02 Stratosphere configuration          | $CASEROOT/SourceMods/src.cam                                          | Step 2.5 |
 # <PK3> [PK02] Adding Namelist definitions for PK02 source code modifications        | $SRCROOT/components/cam/bld/namelist_files/namelist_definition.xml    | Step 2.5 |
 # <PK4> [PK02] Regenerate appropriate input data that fit the PK02 configuration.    | $DIN_LOC_ROOT/cam/inic/dabiic/makeic.ncl                              | Step 2.5 |
@@ -159,19 +159,41 @@ fincl2 = 'U', 'V', 'OMEGA', 'T', 'Z3', 'VZ', 'VT', 'VU', 'OMEGAV', 'OMEGAT', 'OM
 END_OF_INSERT
 
 
-## Adding Namelist: specify namelist parameters to control the use of the PK02 stratosphere <PK1>
+## Adding Namelist: specify namelist parameters to control the use of the PK02 relaxation temperature profile
+#                   and upper level sponge layer <PK1>
 #  namelist -
-#    pkstrat: set to true to use the Polvani and Kushner stratosphere (Polvani and Kushner, 2002)
+#    pkstrat: set to True to use the Polvani and Kushner stratosphere (Polvani and Kushner, 2002)
 #     vgamma: The gamma value (K/Km) in the Polvani and Kushner stratosphere (Polvani and Kushner, 2002)
 #             that represents the lapse rate in the polar stratosphere.  Default=2.
+#       noPV: set to True for NO POLAR VORTEX case. Default=.False. (vgamma, lat0, dellat is then inactive)
+#       pret: Location of sponge layer, i.e., the p_sp value (Pa) in the Polvani and Kushner stratosphere
+#             (Polvani and Kushner, 2002) that control the lower limit (Pa) for upper level damping (sponge layer).
+#             Default = 50 Pa.
+#       lat0: The phi_0 value in the Polvani and Kushner relaxation temperature field (Polvani and Kushner, 2002)
+#             that control the weight function used to confine the cooling over the winter pole. Default = -50.
+#     dellat: The delta_phi value in the Polvani and Kushner relaxation temperature field (Polvani and Kushner, 2002)
+#             that control the weight function used to confine the cooling over the winter pole. Default = 10.
+#       dely: The delta_y value (K) in the Polvani and Kushner relaxation temperature field (Polvani and Kushner, 2002)
+#             that control the meridional temperature gradient in the troposphere. Default = 60 K.
+#        eps: The epsilon value (K) in the Polvani and Kushner relaxation temperature field (Polvani and Kushner, 2002)
+#             that provides the asymmetry between the winter and summer hemisphere. Default = -10 K.
+#       delz: The delta_z value (K) in the Polvani and Kushner relaxation temperature field (Polvani and Kushner, 2002)
+#             that control the vertical temperature gradient in the troposphere. Default = 10 K.
 
 cat <<END_OF_INSERT >> user_nl_cam
 
 ! PKSTRAT
-! Add namelist parameters to control the use of the PK02 relaxation temperature profile
+! Add namelist parameters to control the use of the PK02 relaxation temperature profile and upper level sponge layer
 &pkstrat_nl
   pkstrat=.True.
-  vgamma=2.
+  vgamma = 2.
+  noPV = .False.
+  pret = 50
+  lat0 = 50
+  dellat = 10
+  dely = 60
+  eps = 10
+  delz = 10
 /
 ! END-PKSTRAT
 
