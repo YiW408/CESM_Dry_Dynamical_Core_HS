@@ -202,19 +202,22 @@ END_OF_INSERT
 
 ## Source Code Modification for PK02 Stratosphere configuration <PK2>
 # copy modified source code to $CASEROOT/SourceMods/src.cam/
-cp $CESMDIR/code/PK02_configuration/pkstrat_CESM2_2_3/SourceMods/src.cam/held_suarez_1994.F90 $CASEDIR/SourceMods/src.cam/held_suarez_1994.F90
-cp $CESMDIR/code/PK02_configuration/pkstrat_CESM2_2_3/SourceMods/src.cam/held_suarez_cam.F90 $CASEDIR/SourceMods/src.cam/held_suarez_cam.F90
-cp $CESMDIR/code/PK02_configuration/pkstrat_CESM2_2_3/SourceMods/src.cam/runtime_opts.F90 $CASEDIR/SourceMods/src.cam/runtime_opts.F90
+# replace "$CESMDIR/code/PK02_configuration/" with the path where you put the PK02 code
+cp $CESMDIR/code/PK02_configuration/pkstrat/SourceMods/src.cam/held_suarez_1994.F90 $CASEDIR/SourceMods/src.cam/held_suarez_1994.F90
+cp $CESMDIR/code/PK02_configuration/pkstrat/SourceMods/src.cam/held_suarez_cam.F90 $CASEDIR/SourceMods/src.cam/held_suarez_cam.F90
+cp $CESMDIR/code/PK02_configuration/pkstrat/SourceMods/src.cam/runtime_opts.F90 $CASEDIR/SourceMods/src.cam/runtime_opts.F90
 
 
 ## Adding Namelist definitions for PK02 source code modifications <PK3>
 # copy modified namelist definition file to $SRCROOT/components/cam/bld/namelist_files/namelist_definition.xml
-cp $CESMDIR/code/PK02_configuration/pkstrat_CESM2_2_3/SourceMods/namelist_definitions/namelist_definition.xml $SRCDIR/components/cam/bld/namelist_files/namelist_definition.xml
+# replace "$CESMDIR/code/PK02_configuration/" with the path where you put the PK02 code
+cp $CESMDIR/code/PK02_configuration/pkstrat/SourceMods/namelist_definitions/namelist_definition.xml $SRCDIR/components/cam/bld/namelist_files/namelist_definition.xml
 # (since the modification is made right in $SRCROOT, it is only needed for the first-time running)
 
 
 ## Regenerate appropriate input data that fit the PK02 configuration. <PK4>
 # copy NCL scripts that generate initial condition file to $DIN_LOC_ROOT/atm/cam/inic/dabiic/
+# replace "$CESMDIR/code/PK02_configuration/" with the path where you put the PK02 code
 cp $CESMDIR/code/PK02_configuration/dabiic/* $DATADIR/atm/cam/inic/dabiic/
 # (since the makeic.ncl and its related files is put in $DIN_LOC_ROOT, and will remain existed globally,
 # this command is only needed for the first-time running)
