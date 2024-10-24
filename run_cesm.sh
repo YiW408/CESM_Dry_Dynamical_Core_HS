@@ -36,7 +36,7 @@
 ###################################
 export CESMDIR=/home/ur12229009/cesm                       # root directory for all CESM releases/tags
 export SRCDIR=$CESMDIR/code/cesm2_3_alpha17b               # root directory for CESM code used ($SRCROOT in CESM world)
-export DATADIR=/work/ur12229009/cesm_inputdata             # root directory for CESM input data
+export DATADIR=/work/ur12229009/cesm_inputdata             # root directory for CESM input data ($DIN_LOC_ROOT in CESM world)
 
 export CASENAME=HS94_test                                  # Case Name
 export CASEDIR=$CESMDIR/cases/$CASENAME                    # Case Directory ($CASEROOT in CESM world)
@@ -201,22 +201,25 @@ END_OF_INSERT
 
 
 ## Source Code Modification for PK02 Stratosphere configuration <PK2>
+# copy modified source code to $CASEROOT/SourceMods/src.cam/
 cp $CESMDIR/code/PK02_configuration/pkstrat_CESM2_2_3/SourceMods/src.cam/held_suarez_1994.F90 $CASEDIR/SourceMods/src.cam/held_suarez_1994.F90
 cp $CESMDIR/code/PK02_configuration/pkstrat_CESM2_2_3/SourceMods/src.cam/held_suarez_cam.F90 $CASEDIR/SourceMods/src.cam/held_suarez_cam.F90
 cp $CESMDIR/code/PK02_configuration/pkstrat_CESM2_2_3/SourceMods/src.cam/runtime_opts.F90 $CASEDIR/SourceMods/src.cam/runtime_opts.F90
 
 
 ## Adding Namelist definitions for PK02 source code modifications <PK3>
+# copy modified namelist definition file to $SRCROOT/components/cam/bld/namelist_files/namelist_definition.xml
 cp $CESMDIR/code/PK02_configuration/pkstrat_CESM2_2_3/SourceMods/namelist_definitions/namelist_definition.xml $SRCDIR/components/cam/bld/namelist_files/namelist_definition.xml
 # (since the modification is made right in $SRCROOT, it is only needed for the first-time running)
 
 
 ## Regenerate appropriate input data that fit the PK02 configuration. <PK4>
-
+# copy NCL scripts that generate initial condition file to $DIN_LOC_ROOT/atm/cam/inic/dabiic/
 cp $CESMDIR/code/PK02_configuration/dabiic/* $DATADIR/atm/cam/inic/dabiic/
 # (since the makeic.ncl and its related files is put in $DIN_LOC_ROOT, and will remain existed globally,
 # this command is only needed for the first-time running)
 
+# assign numbers of vertical layers for the simulation
 nlev=60             # numbers of vertical layers
 
 # replace context in makeic.ncl
@@ -229,7 +232,7 @@ ncl $DATADIR/atm/cam/inic/dabiic/makeic.ncl
 cd $CASEDIR
 
 # reassign number of levels to fit the actual vertical resolution
-# (if the resolution is different from the default of $COMPSET)
+# (if the resolution is different from the default of the component set)
 ./xmlchange --file env_build.xml --id CAM_CONFIG_OPTS --val "--phys held_suarez --nlev=$nlev"
 
 
