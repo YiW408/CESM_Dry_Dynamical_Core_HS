@@ -30,6 +30,28 @@ module held_suarez_cam
   ! Updated for CESM2 release, Isla Simpson, 30th May 2018
   ! Modified for CESM2.2.3 alpha 17b release, Yi Wang, Aug 2024
   ! ----------------------------------------------------------------------------------
+  ! Modified to allow user adding more namelist parameters for setting up PK02 forcings
+  !
+  ! Added namelist parameter:
+  !      - noPV: whether to activate NO POLAR VOTEX case.
+  !              set to .False. to generate polar vortex
+  !                     .True.  for NO POLAR VORTEX case .i.e., w=0, vgamma and lat0 inactive)
+  !      - pret: lower limit (Pa) for upper level damping (sponge layer)
+  !      - lat0: (phi_0 parameter in PK02)
+  !      - dellat: (delta_phi parameter in PK02)
+  !      - dely: (delta_y parameter in PK02)
+  !      - eps: (epsilon parameter in PK02)
+  !      - delz: (delta_z parameter in PK02)
+  !
+  ! Modifications are denoted by:
+  !
+  ! ! PKSTRAT (Yi Wang, Sep 2024)
+  ! blah blah blah
+  ! ! END-PKSTRAT (Yi Wang, Sep 2024)
+  !
+  ! Modified for CESM2.2.3 alpha 17b release, Yi Wang, Sep 2024
+  ! ----------------------------------------------------------------------------------
+
 
 
   use shr_kind_mod, only: r8 => shr_kind_r8
@@ -69,6 +91,16 @@ module held_suarez_cam
   logical :: pkstrat !.True. to use the PK02 TEQ
   real(r8) :: vgamma ! vortex gamma parameter (controlling vortex strength)
   ! END PKSTRAT
+
+  ! PKSTRAT (Yi Wang, Sep 2024)
+  logical :: noPV   ! whether to activate NO POLAR VOTEX case
+  integer :: pret   ! lower limit (Pa) for upper level damping (sponge layer), p_sp parameter in PK02
+  integer :: lat0   ! phi_0 parameter in PK02
+  integer :: dellat ! delta_phi parameter in PK02
+  integer :: dely   ! delta_y parameter in PK02
+  integer :: eps    ! epsilon parameter in PK02
+  integer :: delz   ! delta_z parameter in PK02
+  ! END-PKSTRAT (Yi Wang, Sep 2024)
 
 !=======================================================================
 contains
@@ -153,7 +185,7 @@ contains
     ! initialize individual parameterization tendencies
     call physics_ptend_init(ptend, state%psetcols, 'held_suarez', ls=.true., lu=.true., lv=.true.)
 
-    ! PKSTRAT
+    ! PKSTRAT (Yi Wang, Sep 2024)
     ! call held_suarez_1994_run(pver, ncol, pref_mid_norm, clat, cappav(1:ncol,:,lchnk), &
     !                           cpairv(1:ncol,:,lchnk), state%pmid(1:ncol,:),            &
     !                           state%u(1:ncol,:), state%v(1:ncol,:), state%t(1:ncol,:), &
@@ -163,8 +195,8 @@ contains
                               cpairv(1:ncol,:,lchnk), state%pmid(1:ncol,:),            &
                               state%u(1:ncol,:), state%v(1:ncol,:), state%t(1:ncol,:), &
                               ptend%u(1:ncol,:), ptend%v(1:ncol,:), ptend%s(1:ncol,:), &
-                              scheme_name, errmsg, errflg, pkstrat, vgamma)
-    ! END-PKSTRAT
+                              scheme_name, errmsg, errflg, pkstrat, vgamma, noPV, pret, lat0, dellat, dely, eps, delz)
+    ! END-PKSTRAT (Yi Wang, Sep 2024)
 
     ! Note, we assume that there are no subcolumns in simple physics
     pmid(:ncol,:) = ptend%s(:ncol, :)/cpairv(:ncol,:,lchnk)
@@ -183,6 +215,7 @@ contains
 ! stratosphere
 !
 ! Isla Simpson (6th March 2017)
+! Yi Wang (Sep 2024)
 
   use shr_kind_mod,only:r8=>SHR_KIND_R8,cs=>SHR_KIND_CS,cl=>SHR_KIND_CL
   use namelist_utils  ,only:find_group_name
@@ -191,11 +224,22 @@ contains
   integer :: unitn, ierr
   character(len=*), parameter :: sub = 'pkstrat_readnl'
 
-  namelist /pkstrat_nl/ pkstrat, vgamma
+  ! PKSTRAT (Yi Wang, Sep 2024)
+  namelist /pkstrat_nl/ pkstrat, vgamma, noPV, pret, lat0, dellat, dely, eps, delz
+  ! END-PKSTRAT (Yi Wang, Sep 2024)
 
   !Set default namelist parameters
   pkstrat=.False.
   vgamma=2._r8
+  ! PKSTRAT (Yi Wang, Sep 2024)
+  noPV=.False.
+  pret=50
+  lat0=-50
+  dellat=10
+  dely=60
+  eps=-10
+  delz=10
+  ! END-PKSTRAT (Yi Wang, Sep 2024)
 
   !Read in namelist parameters
   if (masterproc) then
@@ -214,6 +258,16 @@ contains
 
   call mpi_bcast(pkstrat   , 1, mpi_logical, mstrid, mpicom, ierr)
   call mpi_bcast(vgamma    , 1, mpi_real8, mstrid, mpicom, ierr)
+
+  ! PKSTRAT (Yi Wang, Sep 2024)
+  call mpi_bcast(noPV    , 1, mpi_logical, mstrid, mpicom, ierr)
+  call mpi_bcast(pret    , 1, mpi_integer, mstrid, mpicom, ierr)
+  call mpi_bcast(lat0    , 1, mpi_integer, mstrid, mpicom, ierr)
+  call mpi_bcast(dellat    , 1, mpi_integer, mstrid, mpicom, ierr)
+  call mpi_bcast(dely    , 1, mpi_integer, mstrid, mpicom, ierr)
+  call mpi_bcast(eps    , 1, mpi_integer, mstrid, mpicom, ierr)
+  call mpi_bcast(delz    , 1, mpi_integer, mstrid, mpicom, ierr)
+  ! PKSTRAT (Yi Wang, Sep 2024)
 
   if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: held_suarez_1994_run")
 

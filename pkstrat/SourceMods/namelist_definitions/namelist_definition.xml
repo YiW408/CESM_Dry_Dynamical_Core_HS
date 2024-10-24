@@ -58,12 +58,49 @@
 
 <entry id="pkstrat" type="logical" category="pkstrat"
        group="pkstrat_nl" valid_values="">
-       Set to true to use the Polvani and Kushner stratosphere
+       Set to true to use the Polvani and Kushner stratosphere (Polvani and Kushner, 2002)
        </entry>
 
 <entry id="vgamma" type="real" category="pkstrat"
        group="pkstrat_nl" valid_values="">
-       The gamma value in the Polvani and Kushner stratosphere that represents the lapse rate in the polar stratosphere.  Default=2.
+       The gamma value (K/Km) in the Polvani and Kushner stratosphere (Polvani and Kushner, 2002) that represents the lapse rate in the polar stratosphere.  Default=2.
+       </entry>
+
+<!-- Controlling the Polvani and Kushner stratosphere and Relaxation Temperature Field (Yi Wang, Sep 2024)-->
+
+<entry id="noPV" type="logical" category="pkstrat"
+       group="pkstrat_nl" valid_values="">
+       Whether to activate NO POLAR VOTEX case. Set to .False. to generate polar vortex. Set to .True. for NO POLAR VORTEX case .i.e., w=0, vgamma and lat0 inactive.
+       </entry>
+
+<entry id="pret" type="integer" category="pkstrat"
+       group="pkstrat_nl" valid_values="">
+       The p_sp value (Pa) in the Polvani and Kushner stratosphere (Polvani and Kushner, 2002) that control the lower limit (Pa) for upper level damping (sponge layer).  Default=50Pa.
+       </entry>
+
+<entry id="lat0" type="integer" category="pkstrat"
+       group="pkstrat_nl" valid_values="">
+       The phi_0 value in the Polvani and Kushner relaxation temperature field (Polvani and Kushner, 2002) that control the weight function used to confine the cooling over the winter pole. Default=-50.
+       </entry>
+
+<entry id="dellat" type="integer" category="pkstrat"
+       group="pkstrat_nl" valid_values="">
+       The delta_phi value in the Polvani and Kushner relaxation temperature field (Polvani and Kushner, 2002) that control the weight function used to confine the cooling over the winter pole. Default=10.
+       </entry>
+
+<entry id="dely" type="integer" category="pkstrat"
+       group="pkstrat_nl" valid_values="">
+       The delta_y value (K) in the Polvani and Kushner relaxation temperature field (Polvani and Kushner, 2002) that control the meridional temperature gradient in the troposphere. Default=60K.
+       </entry>
+
+<entry id="eps" type="integer" category="pkstrat"
+       group="pkstrat_nl" valid_values="">
+       The epsilon value (K) in the Polvani and Kushner relaxation temperature field (Polvani and Kushner, 2002) that provides the asymmetry between the winter and summer hemisphere. Default=10K.
+       </entry>
+
+<entry id="delz" type="integer" category="pkstrat"
+       group="pkstrat_nl" valid_values="">
+       The delta_z value (K) in the Polvani and Kushner relaxation temperature field (Polvani and Kushner, 2002) that control the vertical temperature gradient in the troposphere. Default=10K.
        </entry>
 
 <!-- Frierson Simple Physics Parameters -->

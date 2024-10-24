@@ -22,6 +22,28 @@ module held_suarez_1994
 ! Modified for CESM2 release, Isla Simpson, 30th May 2018
 ! Modified for CESM2.2.3 alpha 17b release, Yi Wang, Aug 2024
 ! ----------------------------------------------------------------------------------
+! Modified to allow user adding more namelist parameters for setting up PK02 forcings
+!
+! 1. Added namelist parameter:
+!      - noPV: whether to activate NO POLAR VOTEX case.
+!              set to .False. to generate polar vortex
+!                     .True.  for NO POLAR VORTEX case .i.e., w=0, vgamma and lat0 inactive)
+!      - pret: lower limit (Pa) for upper level damping (sponge layer)
+!      - lat0: (phi_0 parameter in PK02)
+!      - dellat: (delta_phi parameter in PK02)
+!      - dely: (delta_y parameter in PK02)
+!      - eps: (epsilon parameter in PK02)
+!      - delz: (delta_z parameter in PK02)
+! 2. Add different weighting function W(phi) formula for positive lat0
+!
+! Modifications are denoted by:
+!
+! ! PKSTRAT (Yi Wang, Sep 2024)
+! blah blah blah
+! ! END-PKSTRAT (Yi Wang, Sep 2024)
+!
+! Modified for CESM2.2.3 alpha 17b release, Yi Wang, Sep 2024
+! ----------------------------------------------------------------------------------
 
   !-----------------------------------------------------------------------
   !
@@ -68,14 +90,8 @@ module held_suarez_1994
 
   ! PKSTRAT
   ! Forcing parameters for PK02 option
-  integer, parameter :: lat0=-50.
-  integer, parameter :: dellat=10.
-  integer, parameter :: dely=60.
-  integer, parameter :: eps=-10. !(epsilon parameter in A4 of PK)
-  integer, parameter :: delz=10.
   real(kind_phys), parameter :: efoldstrat = 0.5_kind_phys
   real(kind_phys), parameter :: kfstrat     = 1._kind_phys/(86400._kind_phys*efoldstrat)
-  integer, parameter :: pret=0.5*100. ! lower limit (Pa) for upper level damping
   ! END-PKSTRAT
 
 
@@ -103,12 +119,13 @@ contains
 !> \section arg_table_held_suarez_1994_run Argument Table
 !! \htmlinclude held_suarez_1994_run.html
 
-  !  subroutine held_suarez_1994_run(pver, ncol, pref_mid_norm, clat, cappa, &
+  ! subroutine held_suarez_1994_run(pver, ncol, pref_mid_norm, clat, cappa, &
   !       cpair, pmid, uwnd, vwnd, temp, du, dv, ds, scheme_name, errmsg, errflg)
-  ! PKSTRAT
+  ! PKSTRAT (Yi Wang, Sep 2024)
   subroutine held_suarez_1994_run(pver, ncol, pref_mid_norm, clat, cappa, &
-       cpair, pmid, uwnd, vwnd, temp, du, dv, ds, scheme_name, errmsg, errflg, pkstrat, vgamma)
-  ! END-PKSTRAT
+       cpair, pmid, uwnd, vwnd, temp, du, dv, ds, scheme_name, errmsg, errflg, &
+       pkstrat, vgamma, noPV, pret, lat0, dellat, dely, eps, delz)
+  ! END-PKSTRAT (Yi Wang, Sep 2024)
 
     !-----------------------------------------------------------------------
     !
@@ -123,10 +140,11 @@ contains
     ! !END-PKSTRAT
     !
     ! Updated for CESM2 release, Isla Simpson, May 30th
+    ! Modified for CESM2.2.3 alpha 17b release, Yi Wang, Aug 2024
     !-----------------------------------------------------------------------
 
     ! PKSTRAT
-    use physconst,      only: rair, gravit ! Gas constant and gravity forpkstrat
+    use physconst,      only: rair, gravit ! Gas constant and gravity for pkstrat
     ! END-PKSTRAT
 
     !
@@ -156,6 +174,16 @@ contains
     logical, intent(in) :: pkstrat  !pkstrat=.True. to use the PK02 TEQ
     real(kind_phys), intent(in) :: vgamma  !gamma parameter in PK02 (controling vortex strength)
     ! END-PKSTRAT
+
+    ! PKSTRAT (Yi Wang, Sep 2024)
+    logical, intent(in) :: noPV       ! whether to activate NO POLAR VOTEX case
+    integer, intent(in) :: pret       ! lower limit (Pa) for upper level damping (sponge layer), p_sp parameter in PK02
+    integer, intent(in) :: lat0       ! phi_0 parameter in PK02
+    integer, intent(in) :: dellat     ! delta_phi parameter in PK02
+    integer, intent(in) :: dely       ! delta_y parameter in PK02
+    integer, intent(in) :: eps        ! epsilon parameter in PK02
+    integer, intent(in) :: delz       ! delta_z parameter in PK02
+    ! END-PKSTRAT (Yi Wang, Sep 2024)
 
     !
     !---------------------------Local workspace-----------------------------
@@ -206,6 +234,8 @@ contains
     errmsg = ' '
     errflg = 0
     scheme_name = "HELD_SUAREZ"
+
+    ! print*,pkstrat,vgamma,noPV,pret,lat0,dellat,dely,eps,delz
 
     do i = 1, ncol
       coslat (i) = cos(clat(i))
@@ -262,10 +292,21 @@ contains
          !US standard atmosphere at level
          tvalstd=tbase*(pref_mid_norm(k)/pbase)**(-1.*(rair*lapsebase/gravit))
 
+
          do i = 1,ncol
            if (pmid(i,k).lt.1e4_kind_phys) then !pre < 100hPa
              tpv=tstd100*(pmid(i,k)/1e4_kind_phys)**(rair*vgammaperm/gravit)
-             w=0.5*(1-tanh( (deglat(i)-lat0)/dellat))
+             ! PKSTRAT (Yi Wang, Sep 2024)
+             if (noPV) then
+               w=0.
+             else
+               if (lat0.lt.0) then
+                 w=0.5*(1-tanh( (deglat(i)-lat0)/dellat))
+               else
+                 w=0.5*(1+tanh( (deglat(i)-lat0)/dellat))
+               end if
+             end if
+             ! END-PKSTRAT (Yi Wang, Sep 2024)
              trefa=(1-w)*tvalstd + w*tpv
            else
              fac1=tstd100
@@ -287,7 +328,8 @@ contains
 
          end do
        end do
-     else  !using Held-Suarez TEQ
+
+    else  !using Held-Suarez TEQ
     ! END-PKSTRAT
 
     do k = 1, pver
@@ -337,7 +379,7 @@ contains
             kv=kfstrat*((pret-pmid(i,k))/pret)**(2.)
             du(i,k) = -kv*uwnd(i,k)
             dv(i,k) = -kv*vwnd(i,k)
-           endif !pmid < 0.5
+           endif !pmid < pret
         end do
       endif !pkstrat
       ! END-PKSTRAT
