@@ -122,14 +122,18 @@ load "./functions.ncl"
 ;=============
 
 setfileoption("nc", "Format", "LargeFile")
-diro = "/work/ur12229009/cesm_inputdata/atm/cam/inic/dabiic/ncdata/"        ; Output directory
+diro = "/work/ur12229009/cesm_inputdata/atm/cam/inic/"              ; Output directory
   
 if (icase .eq. 0) then
-    filo = "DABIp2004." + res + ".L" + nlev + ".nc"                 ; Output file name
+    filo = "dabiic/DABIp2004." + res + ".L" + nlev + ".nc"                 ; Output file name
 end if
 
 if (icase .eq. 1) then
-    filo = "HS1994." + res + ".L" + nlev + ".nc"
+    if (.not. evsig .and. sandb) then     ; PK02 configuration
+        filo = "hs1994/hs1994_pk02/HS1994_PK02." + res + ".L" + nlev + ".nc"    ; Output file name
+    else
+        filo = "hs1994/gaus/HS1994." + res + ".L" + nlev + ".nc"           ; Output file name (default of FHS94 component set)
+    end if
 end if
 
 system("/bin/rm -f " + diro + filo) ; remove if exists

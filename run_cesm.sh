@@ -21,9 +21,9 @@
 #              PK02 relaxation temperature profile and upper level sponge layer      |                                                                       |          |
 # <PK2> [PK02] Source Code Modification for PK02 Stratosphere configuration          | $CASEROOT/SourceMods/src.cam                                          | Step 2.5 |
 # <PK3> [PK02] Adding Namelist definitions for PK02 source code modifications        | $SRCROOT/components/cam/bld/namelist_files/namelist_definition.xml    | Step 2.5 |
-# <PK4> [PK02] Regenerate appropriate input data that fit the PK02 configuration.    | $DIN_LOC_ROOT/cam/inic/dabiic/makeic.ncl                              | Step 2.5 |
-#              (using uneven grid spacing in vertical direction)                     | $DIN_LOC_ROOT/cam/inic/dabiic/levels.ncl                              | Step 2.5 |
-#                                                                                    | $DIN_LOC_ROOT/cam/inic/dabiic/ncdata/HS1994.128x256.L60.nc            | Step 2.5 |
+# <PK4> [PK02] Regenerate appropriate input data that fit the PK02 configuration.    | $CESMDIR/code/PK02_configuration/inic/makeic.ncl                      | Step 2.5 |
+#              (using uneven grid spacing in vertical direction)                     | $CESMDIR/code/PK02_configuration/inic/levels.ncl                      | Step 2.5 |
+#                                                                                    | $DIN_LOC_ROOT/atm/cam/inic/hs1994/hs1994_pk02/                        | Step 2.5 |
 # <PK5> [PK02] Namelist modification - revalue 'ncdata' to the location of           | $CASEROOT/user_nl_cam                                                 | Step 2.5 |
 #              expected (new) initial condition file                                 |                                                                       |          |
 # <PK6> [PK02] Namelist modification -                                               | $CASEROOT/user_nl_cam                                                 | Step 2.5 |
@@ -216,22 +216,17 @@ cp $CESMDIR/code/PK02_configuration/pkstrat/SourceMods/namelist_definitions/name
 
 
 ## Regenerate appropriate input data that fit the PK02 configuration. <PK4>
-# copy NCL scripts that generate initial condition file to $DIN_LOC_ROOT/atm/cam/inic/dabiic/
-# replace "$CESMDIR/code/PK02_configuration/" with the path where you put the PK02 code
-cp $CESMDIR/code/PK02_configuration/dabiic/* $DATADIR/atm/cam/inic/dabiic/
-# (since the makeic.ncl and its related files is put in $DIN_LOC_ROOT, and will remain existed globally,
-# this command is only needed for the first-time running)
 
 # assign numbers of vertical layers for the simulation
 nlev=60             # numbers of vertical layers
 
 # replace context in makeic.ncl
-sed -i "66c\nlev = $nlev" $DATADIR/atm/cam/inic/dabiic/makeic.ncl
+sed -i "66c\nlev = $nlev" $CESMDIR/code/PK02_configuration/inic/makeic.ncl
 
 # execute makeic.ncl - generate input data
-cd $DATADIR/atm/cam/inic/dabiic/
+cd $CESMDIR/code/PK02_configuration/inic/
 module load coda/tools/ncl
-ncl $DATADIR/atm/cam/inic/dabiic/makeic.ncl
+ncl makeic.ncl
 cd $CASEDIR
 
 # reassign number of levels to fit the actual vertical resolution
@@ -246,7 +241,7 @@ cat <<END_OF_INSERT >> user_nl_cam
 ! input data (I.C.) for modified vertical resolution configuration
 ! ncdata='myfile'   ! 'myfile' for location of expected initial condition
 ! for T85L60
-ncdata='/work/ur12229009/cesm_inputdata/atm/cam/inic/dabiic/ncdata/HS1994.128x256.L60.nc'
+ncdata='/work/ur12229009/cesm_inputdata/atm/cam/inic/hs1994/hs1994_pk02/HS1994_PK02.128x256.L60.nc'
 
 END_OF_INSERT
 
