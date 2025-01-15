@@ -35,7 +35,7 @@
 # declare environmental variables #
 ###################################
 export CESMDIR=/home/ur12229009/cesm                       # root directory for all CESM releases/tags
-export SRCDIR=$CESMDIR/code/cesm2_3_alpha17b               # root directory for CESM code used ($SRCROOT in CESM world)
+export SRCDIR=$CESMDIR/code/cesm2_2_3_alpha17b               # root directory for CESM code used ($SRCROOT in CESM world)
 export DATADIR=/work/ur12229009/cesm_inputdata             # root directory for CESM input data ($DIN_LOC_ROOT in CESM world)
 
 export CASENAME=HS94_test                                  # Case Name
